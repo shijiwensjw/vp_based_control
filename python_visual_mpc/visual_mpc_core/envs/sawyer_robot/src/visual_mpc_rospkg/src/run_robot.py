@@ -99,7 +99,7 @@ class RobotEnvironment:
             traj_folder = group_folder + '/traj{}'.format(sample_index)
             print("Collecting sample {}".format(sample_index))
 
-        agent_data, obs_dict, policy_out = self.agent.sample(self.policy, sample_index)
+        agent_data, obs_dict, policy_out = self.agent.sample(self.policy, sample_index) # here, agent=GeneralAgent
 
         if self._hyperparams['save_data']:
             self._save_raw_images(traj_folder, agent_data, obs_dict, policy_out)

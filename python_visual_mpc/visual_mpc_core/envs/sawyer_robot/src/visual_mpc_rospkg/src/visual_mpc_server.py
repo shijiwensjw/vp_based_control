@@ -3,7 +3,7 @@ import os
 
 from python_visual_mpc.goaldistancenet.setup_gdn import setup_gdn
 import shutil
-import socket
+# import socket
 import numpy as np
 import pdb
 from PIL import Image
