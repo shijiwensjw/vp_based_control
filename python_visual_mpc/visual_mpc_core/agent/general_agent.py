@@ -68,6 +68,7 @@ class GeneralAgent(object):
         Runs a trial and constructs a new sample containing information
         about the trial.
         """
+        # simulation
         if "gen_xml" in self._hyperparams:
             if i_traj % self._hyperparams['gen_xml'] == 0 and i_traj > 0:
                 self._setup_world(i_traj)
@@ -194,11 +195,11 @@ class GeneralAgent(object):
         while not done:
             """
             Every time step send observations to policy, acts in environment, and records observations
-            
+
             Policy arguments are created by
                 - populating a kwarg dict using get_policy_arg
                 - calling policy.act with given dictionary
-            
+
             Policy returns an object (pi_t) where pi_t['actions'] is an action that can be fed to environment
             Environment steps given action and returns an observation
             """
@@ -246,6 +247,3 @@ class GeneralAgent(object):
         Set the world to a given model
         """
         self.large_images_traj, self.traj_points= [], None
-
-
-

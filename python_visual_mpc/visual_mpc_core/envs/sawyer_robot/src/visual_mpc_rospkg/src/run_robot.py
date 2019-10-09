@@ -14,7 +14,7 @@ supported_robots = {'sudri', 'vestri'}
 class RobotEnvironment:
     def __init__(self, robot_name, conf, resume = False, ngpu = 1, gpu_id = 0, is_bench=False):
         self._hyperparams = conf
-        self.agentparams, self.policyparams, self.envparams = conf['agent'], conf['policy'], conf['agent']['env'][1]
+        self.agentparams, self.policyparams, self.envparams = conf['agent'], conf['policy'], conf['agent']['env'][1] # {}
 
         if robot_name not in supported_robots:
             msg = "ROBOT {} IS NOT A SUPPORTED ROBOT (".format(robot_name)
@@ -38,8 +38,8 @@ class RobotEnvironment:
         self._gpu_id = gpu_id
 
         #since the agent interacts with Sawyer, agent creation handles recorder/controller setup
-        self.agent = self.agentparams['type'](self.agentparams)
-        self.policy = self.policyparams['type'](self.agentparams, self.policyparams, self._gpu_id, self._ngpu)
+        self.agent = self.agentparams['type'](self.agentparams) # GeneralAgent
+        self.policy = self.policyparams['type'](self.agentparams, self.policyparams, self._gpu_id, self._ngpu) # Randompolicy
 
         robot_dir = self.agentparams['data_save_dir'] + '/{}'.format(robot_name)
         if not os.path.exists(robot_dir):
@@ -99,6 +99,7 @@ class RobotEnvironment:
             traj_folder = group_folder + '/traj{}'.format(sample_index)
             print("Collecting sample {}".format(sample_index))
 
+        #get data from agent
         agent_data, obs_dict, policy_out = self.agent.sample(self.policy, sample_index) # here, agent=GeneralAgent
 
         if self._hyperparams['save_data']:
@@ -150,7 +151,8 @@ if __name__ == '__main__':
     parser.add_argument('--benchmark', action='store_true', default=False,
                         help='Add flag if this experiment is a benchmark')
     args = parser.parse_args()
-
+    # import sys
+    # print(sys.path)
     hyperparams = imp.load_source('hyperparams', args.experiment)
     conf = hyperparams.config
 

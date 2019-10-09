@@ -1,10 +1,10 @@
 import rospy
-from python_visual_mpc.visual_mpc_core.envs.sawyer_robot.visual_mpc_rospkg.src.utils.robot_controller import RobotController
+from python_visual_mpc.visual_mpc_core.envs.sawyer_robot.src.visual_mpc_rospkg.src.utils.robot_controller import RobotController
 from wsg_50_common.msg import Cmd, Status
 from threading import Semaphore, Lock
 import numpy as np
 from python_visual_mpc.visual_mpc_core.envs.util.interpolation import CSpline
-import python_visual_mpc.visual_mpc_core.envs.sawyer_robot.visual_mpc_rospkg as visual_mpc_rospkg
+import python_visual_mpc.visual_mpc_core.envs.sawyer_robot.src.visual_mpc_rospkg as visual_mpc_rospkg
 from intera_core_msgs.msg import JointCommand
 import cPickle as pickle
 import intera_interface

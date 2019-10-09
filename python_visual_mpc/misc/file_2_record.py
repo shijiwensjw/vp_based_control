@@ -27,6 +27,7 @@ def save_worker(save_conf):
 
         imgs = np.zeros((T, ncam, target_dim[1], target_dim[0], 3), dtype = np.uint8)
 
+        # image resize
         for t in range(T):
             for n in range(ncam):
                 img = cv2.imread('{}/images{}/im_{}.jpg'.format(traj, n, t))[:, :, ::-1]
