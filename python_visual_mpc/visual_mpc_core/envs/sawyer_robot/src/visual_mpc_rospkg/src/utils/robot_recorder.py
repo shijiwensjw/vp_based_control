@@ -102,7 +102,7 @@ class RobotRecorder(object):
 
         prefix = self.instance_type
 
-        rospy.Subscriber("/kinect2/hd/image_color", Image_msg, self.store_latest_im)
+        rospy.Subscriber("/camera/color/image_raw", Image_msg, self.store_latest_im)
 
         self.save_dir = save_dir
         self.image_folder = save_dir

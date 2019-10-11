@@ -193,3 +193,5 @@ bench30steps/
 auto_gen*
 UML/
 python_visual_mpc/visual_mpc_core/envs/sawyer_robot/src/intera_common/
+python_visual_mpc/visual_mpc_core/envs/sawyer_robot/src/intera_sdk/
+python_visual_mpc/visual_mpc_core/envs/sawyer_robot/src/wsg50-ros-pkg/

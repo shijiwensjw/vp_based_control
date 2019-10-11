@@ -7,7 +7,7 @@ from python_visual_mpc.visual_mpc_core.agent.general_agent import Image_Exceptio
 from python_visual_mpc.visual_mpc_core.envs.sawyer_robot.util.limb_recorder import LimbWSGRecorder
 from python_visual_mpc.visual_mpc_core.envs.sawyer_robot.util.camera_recorder import CameraRecorder
 from python_visual_mpc.visual_mpc_core.envs.sawyer_robot.util.impedance_wsg_controller import ImpedanceWSGController, NEUTRAL_JOINT_CMD
-from python_visual_mpc.visual_mpc_core.envs.sawyer_robot.visual_mpc_rospkg.src.utils import inverse_kinematics
+from python_visual_mpc.visual_mpc_core.envs.sawyer_robot.src.visual_mpc_rospkg.src.utils import inverse_kinematics
 from python_visual_mpc.visual_mpc_core.envs.util.interpolation import QuinticSpline
 import copy
 import rospy
