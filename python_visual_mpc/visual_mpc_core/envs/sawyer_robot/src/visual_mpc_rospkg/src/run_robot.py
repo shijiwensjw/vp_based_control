@@ -53,6 +53,8 @@ class RobotEnvironment:
             self._hyperparams['start_index'] = self._ck_dict['ntraj']
         else:
             self._ck_dict = {'ntraj' : 0, 'broken_traj' : []}
+        print('robot_dir: '+robot_dir)
+        print('*'*10+'init complite'+'*'*10)
 
     def run(self):
         if not self._is_bench:
@@ -99,8 +101,10 @@ class RobotEnvironment:
             traj_folder = group_folder + '/traj{}'.format(sample_index)
             print("Collecting sample {}".format(sample_index))
 
-        #get data from agent
+        print("get agent_data, obs_dict, policy_out")
+        # get data from agent
         agent_data, obs_dict, policy_out = self.agent.sample(self.policy, sample_index) # here, agent=GeneralAgent
+        # agent_data, obs_dict, policy_out = None, None, None
 
         if self._hyperparams['save_data']:
             self._save_raw_images(traj_folder, agent_data, obs_dict, policy_out)

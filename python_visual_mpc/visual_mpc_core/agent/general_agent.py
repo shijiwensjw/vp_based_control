@@ -55,7 +55,7 @@ class GeneralAgent(object):
         Args:
             filename: Path to XML file containing the world information.
         """
-        env_type, env_params = self._hyperparams['env']
+        env_type, env_params = self._hyperparams['env'] # 'env' is AutograspSawyerEnv here
         self.env = env_type(env_params, self._reset_state)
 
         self._hyperparams['adim'] = self.adim = self.env.adim

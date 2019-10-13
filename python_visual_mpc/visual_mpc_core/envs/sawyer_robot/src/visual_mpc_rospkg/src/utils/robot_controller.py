@@ -22,10 +22,12 @@ class RobotController(object):
         rospy.init_node("sawyer_custom_controller")
         rospy.on_shutdown(self.clean_shutdown)
 
-        self._rs = intera_interface.RobotEnable(CHECK_VERSION)
-        init_state = self._rs.state().enabled
+        # self._rs = intera_interface.RobotEnable(CHECK_VERSION)
+        # init_state = self._rs.state().enabled
         print("Robot enabled...")
 
+        # temperal Comment for debuging code
+        '''
         self.limb = intera_interface.Limb("right")
 
         self.sawyer_gripper = False
@@ -38,7 +40,7 @@ class RobotController(object):
 
         self.joint_names = self.limb.joint_names()
         print("Done initializing controller.")
-
+        '''
 
     def set_joint_delta(self, joint_name, delta):
         """Move a single joint by a delta"""

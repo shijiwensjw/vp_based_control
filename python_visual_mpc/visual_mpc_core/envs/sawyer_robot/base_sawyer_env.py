@@ -7,6 +7,8 @@ from python_visual_mpc.visual_mpc_core.agent.general_agent import Image_Exceptio
 from python_visual_mpc.visual_mpc_core.envs.sawyer_robot.util.limb_recorder import LimbWSGRecorder
 from python_visual_mpc.visual_mpc_core.envs.sawyer_robot.util.camera_recorder import CameraRecorder
 from python_visual_mpc.visual_mpc_core.envs.sawyer_robot.util.impedance_wsg_controller import ImpedanceWSGController, NEUTRAL_JOINT_CMD
+from python_visual_mpc.visual_mpc_core.envs.sawyer_robot.src.visual_mpc_rospkg.src.utils.robot_controller import RobotController
+
 from python_visual_mpc.visual_mpc_core.envs.sawyer_robot.src.visual_mpc_rospkg.src.utils import inverse_kinematics
 from python_visual_mpc.visual_mpc_core.envs.util.interpolation import QuinticSpline
 import copy
@@ -128,8 +130,11 @@ class BaseSawyerEnv(BaseEnv):
             self._obs_tol = 0.5
         else:
             self._obs_tol = self._hp.OFFSET_TOL
+        print('test point')
 
-        self._controller = ImpedanceWSGController(CONTROL_RATE, self._robot_name, self._hp.print_debug)
+        # self._controller = ImpedanceWSGController(CONTROL_RATE, self._robot_name, self._hp.print_debug)
+        self._controller = RobotController()
+
         self._limb_recorder = LimbWSGRecorder(self._controller)
         self._save_video = self._hp.video_save_dir is not None
         self._main_cam = CameraRecorder('/camera0/image_raw', self._hp.opencv_tracking, self._save_video)
