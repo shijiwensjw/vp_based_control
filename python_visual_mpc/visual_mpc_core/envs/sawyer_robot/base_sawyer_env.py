@@ -135,17 +135,17 @@ class BaseSawyerEnv(BaseEnv):
         # self._controller = ImpedanceWSGController(CONTROL_RATE, self._robot_name, self._hp.print_debug)
         self._controller = RobotController()
 
-        self._limb_recorder = LimbWSGRecorder(self._controller)
+        # self._limb_recorder = LimbWSGRecorder(self._controller)
         self._save_video = self._hp.video_save_dir is not None
-        self._main_cam = CameraRecorder('/camera0/image_raw', self._hp.opencv_tracking, self._save_video)
-        self._left_cam = CameraRecorder('/camera1/image_raw', self._hp.opencv_tracking, self._save_video)
-        self._controller.open_gripper(True)
-        self._controller.close_gripper(True)
-        self._controller.open_gripper(True)
+        self._main_cam = CameraRecorder('/camera/color/image_raw', self._hp.opencv_tracking, self._save_video)
+        # self._left_cam = CameraRecorder('/camera1/image_raw', self._hp.opencv_tracking, self._save_video)
+        # self._controller.open_gripper(True)
+        # self._controller.close_gripper(True)
+        # self._controller.open_gripper(True)
 
-        img_dim_check = (self._main_cam.img_height, self._main_cam.img_width) == \
-                        (self._left_cam.img_height, self._left_cam.img_width)
-        assert img_dim_check, 'Camera image streams do not match)'
+        # img_dim_check = (self._main_cam.img_height, self._main_cam.img_width) == \
+                        # (self._left_cam.img_height, self._left_cam.img_width)
+        # assert img_dim_check, 'Camera image streams do not match)'
         self._height, self._width = self._main_cam.img_height, self._main_cam.img_width
 
         self._base_adim, self._base_sdim = 5, 5
@@ -154,7 +154,7 @@ class BaseSawyerEnv(BaseEnv):
         self._reset_counter, self._previous_target_qpos = 0, None
 
         self._start_pix, self._desig_pix, self._goal_pix = None, None, None
-        self._goto_closest_neutral()
+        # self._goto_closest_neutral()
 
     def _default_hparams(self):
         default_dict = {'robot_name': None,
@@ -209,17 +209,17 @@ class BaseSawyerEnv(BaseEnv):
         wait_change = (target_qpos[-1] > 0) != (self._previous_target_qpos[-1] > 0)
 
         if self._save_video:
-            self._main_cam.start_recording(), self._left_cam.start_recording()
+            self._main_cam.start_recording() #, self._left_cam.start_recording()
 
-        if target_qpos[-1] > 0:
-            self._controller.close_gripper(wait_change)
-        else:
-            self._controller.open_gripper(wait_change)
+        # if target_qpos[-1] > 0:
+        #     self._controller.close_gripper(wait_change)
+        # else:
+        #     self._controller.open_gripper(wait_change)
 
-        self._move_to_state(target_qpos[:3], target_qpos[3])
+        # self._move_to_state(target_qpos[:3], target_qpos[3])
 
         if self._save_video:
-            self._main_cam.stop_recording(), self._left_cam.stop_recording()
+            self._main_cam.stop_recording() #, self._left_cam.stop_recording()
 
         self._previous_target_qpos = target_qpos
         return self._get_obs()
@@ -248,24 +248,27 @@ class BaseSawyerEnv(BaseEnv):
 
     def _get_obs(self):
         obs = {}
-        j_angles, j_vel, eep, gripper_state, force_sensor = self._limb_recorder.get_state()
-        obs['qpos'] = j_angles
-        obs['qvel'] = j_vel
+        # get information from robot arm
+        # j_angles, j_vel, eep, gripper_state, force_sensor = self._limb_recorder.get_state()
+        # obs['qpos'] = j_angles
+        # obs['qvel'] = j_vel
 
-        if self._hp.print_debug and self._previous_target_qpos is not None:
-            print 'xy delta: ', np.linalg.norm(eep[:2] - self._previous_target_qpos[:2])
-            print 'target z', self._previous_target_qpos[2], 'real z', eep[2]
-            print 'z dif', abs(eep[2] - self._previous_target_qpos[2])
-            print 'angle dif (degrees): ', abs(quat_to_zangle(eep[3:]) - self._previous_target_qpos[3]) * 180 / np.pi
-            print 'angle degree target {} vs real {}'.format(np.rad2deg(quat_to_zangle(eep[3:])),
-                                                             np.rad2deg(self._previous_target_qpos[3]))
+        # if self._hp.print_debug and self._previous_target_qpos is not None:
+            # print 'xy delta: ', np.linalg.norm(eep[:2] - self._previous_target_qpos[:2])
+            # print 'target z', self._previous_target_qpos[2], 'real z', eep[2]
+            # print 'z dif', abs(eep[2] - self._previous_target_qpos[2])
+            # print 'angle dif (degrees): ', abs(quat_to_zangle(eep[3:]) - self._previous_target_qpos[3]) * 180 / np.pi
+            # print 'angle degree target {} vs real {}'.format(np.rad2deg(quat_to_zangle(eep[3:])),
+                                                             # np.rad2deg(self._previous_target_qpos[3]))
 
         state = np.zeros(self._base_sdim)
-        state[:3] = (eep[:3] - self._low_bound[:3]) / (self._high_bound[:3] - self._low_bound[:3])
-        state[3] = quat_to_zangle(eep[3:])
-        state[4] = gripper_state * self._low_bound[-1] + (1 - gripper_state) * self._high_bound[-1]
+        print('state dimension: ',state.shape)
+        # state[:3] = (eep[:3] - self._low_bound[:3]) / (self._high_bound[:3] - self._low_bound[:3])
+        # state[3] = quat_to_zangle(eep[3:])
+        # state[4] = gripper_state * self._low_bound[-1] + (1 - gripper_state) * self._high_bound[-1]
         obs['state'] = state
-        obs['finger_sensors'] = force_sensor
+        # obs['finger_sensors'] = force_sensor
+        obs['finger_sensors'] = 1
 
         self._last_obs = copy.deepcopy(obs)
         obs['images'] = self.render()
@@ -274,7 +277,7 @@ class BaseSawyerEnv(BaseEnv):
             track_desig = np.zeros((2, 1, 2), dtype=np.int64)
             track_desig[0] = self._main_cam.get_track()
             track_desig[0] = np.array([[self._height, self._width]]) - track_desig[0]
-            track_desig[1] = self._left_cam.get_track()
+            # track_desig[1] = self._left_cam.get_track()
             self._desig_pix = track_desig
 
         if self._desig_pix is not None:
@@ -300,7 +303,7 @@ class BaseSawyerEnv(BaseEnv):
         interp_jas = precalculate_interpolation(p1, p2, duration, last_pos, last_cmd, joint_names)
 
         i = 0
-        self._controller.control_rate.sleep()
+        # self._controller.control_rate.sleep()
         start_time = rospy.get_time()
         t = rospy.get_time()
         while t - start_time < duration:
@@ -313,15 +316,16 @@ class BaseSawyerEnv(BaseEnv):
             print('Effective rate: {} Hz'.format(i / (rospy.get_time() - start_time)))
 
     def _reset_previous_qpos(self):
-        eep = self._limb_recorder.get_state()[2]
+        # eep = self._limb_recorder.get_state()[2]
         self._previous_target_qpos = np.zeros(self._base_sdim)
-        self._previous_target_qpos[:3] = eep[:3]
-        self._previous_target_qpos[3] = quat_to_zangle(eep[3:])
+        # self._previous_target_qpos[:3] = eep[:3]
+        # self._previous_target_qpos[3] = quat_to_zangle(eep[3:])
         self._previous_target_qpos[4] = -1
 
     def _save_videos(self):
         if self._save_video:
-            front_buffer, left_buffer = self._main_cam.reset_recording(), self._left_cam.reset_recording()
+            # front_buffer, left_buffer = self._main_cam.reset_recording(), self._left_cam.reset_recording()
+            front_buffer = self._main_cam.reset_recording()
             if len(front_buffer) == 0 and len(left_buffer) == 0:
                 return
             front_buffer = [f[::-1, ::-1].copy() for f in front_buffer]
@@ -342,7 +346,7 @@ class BaseSawyerEnv(BaseEnv):
             track_desig[0] = np.array([[self._height, self._width]]) - track_desig[0]
 
             self._main_cam.start_tracking(track_desig[0])
-            self._left_cam.start_tracking(track_desig[1])
+            # self._left_cam.start_tracking(track_desig[1])
 
         self._reset_previous_qpos()
         self._init_dynamics()
@@ -367,7 +371,7 @@ class BaseSawyerEnv(BaseEnv):
         self._save_videos()
 
         if self._hp.start_at_neutral:
-            self._controller.open_gripper(True)
+            # self._controller.open_gripper(True)
             self._goto_closest_neutral()
             return self._end_reset()
 
@@ -375,10 +379,11 @@ class BaseSawyerEnv(BaseEnv):
             rand_xyz = np.random.uniform(self._low_bound[:3], self._high_bound[:3])
             rand_xyz[2] = self._high_bound[2]
             rand_zangle = np.random.uniform(self._low_bound[3], self._high_bound[3])
-            self._move_to_state(rand_xyz, rand_zangle, 2.)
-            self._controller.close_gripper(True)
-            self._controller.open_gripper(True)
-            self._controller.neutral_with_impedance()
+            # Command for robot
+            # self._move_to_state(rand_xyz, rand_zangle, 2.)
+            # self._controller.close_gripper(True)
+            # self._controller.open_gripper(True)
+            # self._controller.neutral_with_impedance()
         else:
             self._controller.open_gripper(True)
             self._controller.neutral_with_impedance()
@@ -386,15 +391,15 @@ class BaseSawyerEnv(BaseEnv):
         if self._cleanup_rate > 0 and self._reset_counter % self._cleanup_rate == 0 and self._reset_counter > 0:
             self._controller.redistribute_objects()
 
-        self._controller.neutral_with_impedance()
-        self._controller.open_gripper(False)
+        # self._controller.neutral_with_impedance()
+        # self._controller.open_gripper(False)
         rospy.sleep(0.5)
-        self._reset_previous_qpos()
+        # self._reset_previous_qpos()
 
 
         rand_xyz = np.random.uniform(self._low_bound[:3], self._high_bound[:3])
         rand_zangle = np.random.uniform(self._low_bound[3], self._high_bound[3])
-        self._move_to_state(rand_xyz, rand_zangle, 2.)
+        # self._move_to_state(rand_xyz, rand_zangle, 2.)
 
         return self._end_reset()
 
@@ -422,7 +427,7 @@ class BaseSawyerEnv(BaseEnv):
         """
         return False
 
-    def render(self, mode='dual'):
+    def render(self, mode='main'):
         """ Grabs images form cameras.
         If returning multiple images asserts timestamps are w/in OBS_TOLERANCE, and raises Image_Exception otherwise
 
@@ -432,7 +437,9 @@ class BaseSawyerEnv(BaseEnv):
         :param mode: Mode to render with (dual by default)
         :return: uint8 numpy array with rendering from sim
         """
-        cameras = [self._main_cam, self._left_cam]
+        # cameras = [self._main_cam, self._left_cam]
+        cameras = [self._main_cam]
+
         if mode == 'left':
             cameras = [self._left_cam]
         elif mode == 'main':
@@ -441,7 +448,7 @@ class BaseSawyerEnv(BaseEnv):
         time_stamps = []
         cam_imgs = []
         for c, recorder in enumerate(cameras):
-            stamp, image = recorder.get_image()
+            stamp, image = recorder.get_image() # recorder is _main_cam here
             time_stamps.append(stamp)
             if recorder is self._main_cam:
                 cam_imgs.append(image[::-1, ::-1].copy())
@@ -511,7 +518,7 @@ class BaseSawyerEnv(BaseEnv):
 
         if self._hp.opencv_tracking:
             self._main_cam.end_tracking()
-            self._left_cam.end_tracking()
+            # self._left_cam.end_tracking()
 
         return {'final_dist': final_dist, 'start_dist': start_dist, 'improvement': improvement}
 

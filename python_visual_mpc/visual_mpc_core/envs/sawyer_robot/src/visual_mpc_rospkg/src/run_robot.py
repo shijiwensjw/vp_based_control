@@ -58,11 +58,14 @@ class RobotEnvironment:
 
     def run(self):
         if not self._is_bench:
+            print('begin sampling')
             for i in xrange(self._hyperparams['start_index'], self._hyperparams['end_index']):
                 self.take_sample(i)
+        # Actually, didn't run this code in else
         else:
             itr = 0
-            while True:
+            while iter<10:
+                print('begin sampling')
                 self.take_sample(itr)
                 itr += 1
 
@@ -105,7 +108,7 @@ class RobotEnvironment:
         # get data from agent
         agent_data, obs_dict, policy_out = self.agent.sample(self.policy, sample_index) # here, agent=GeneralAgent
         # agent_data, obs_dict, policy_out = None, None, None
-
+        # print('obs_dict\'s keys:', obs_dict.keys())
         if self._hyperparams['save_data']:
             self._save_raw_images(traj_folder, agent_data, obs_dict, policy_out)
 

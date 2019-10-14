@@ -103,6 +103,8 @@ class RobotController(object):
         # if not init_state:
         #     print("Disabling robot...")
             # rs.disable()
+    def redistribute_objects(self):
+        print("Redistribute objects!")
 
 
 def distance_between_commands(j1, j2):
