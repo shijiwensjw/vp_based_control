@@ -240,7 +240,7 @@ class GeneralAgent(object):
                     cv2.circle(img, center, 4, colors[i], -1)
 
         file_path = self._hyperparams['record']
-        npy_to_gif(self.large_images_traj, file_path +'/video{}'.format(itr))
+        npy_to_gif(self.large_images_traj, file_path +'video{}'.format(itr), fps=20)
 
     def _init(self):
         """

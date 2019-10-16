@@ -6,7 +6,8 @@ from pyquaternion import Quaternion
 from python_visual_mpc.visual_mpc_core.agent.general_agent import Image_Exception
 from python_visual_mpc.visual_mpc_core.envs.sawyer_robot.util.limb_recorder import LimbWSGRecorder
 from python_visual_mpc.visual_mpc_core.envs.sawyer_robot.util.camera_recorder import CameraRecorder
-from python_visual_mpc.visual_mpc_core.envs.sawyer_robot.util.impedance_wsg_controller import ImpedanceWSGController, NEUTRAL_JOINT_CMD
+# from python_visual_mpc.visual_mpc_core.envs.sawyer_robot.util.impedance_wsg_controller import ImpedanceWSGController, NEUTRAL_JOINT_CMD
+# sjw append
 from python_visual_mpc.visual_mpc_core.envs.sawyer_robot.src.visual_mpc_rospkg.src.utils.robot_controller import RobotController
 
 from python_visual_mpc.visual_mpc_core.envs.sawyer_robot.src.visual_mpc_rospkg.src.utils import inverse_kinematics

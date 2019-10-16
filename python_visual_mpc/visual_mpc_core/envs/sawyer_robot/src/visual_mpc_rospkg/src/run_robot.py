@@ -104,7 +104,7 @@ class RobotEnvironment:
             traj_folder = group_folder + '/traj{}'.format(sample_index)
             print("Collecting sample {}".format(sample_index))
 
-        print("get agent_data, obs_dict, policy_out")
+        # print("get agent_data, obs_dict, policy_out")
         # get data from agent
         agent_data, obs_dict, policy_out = self.agent.sample(self.policy, sample_index) # here, agent=GeneralAgent
         # agent_data, obs_dict, policy_out = None, None, None

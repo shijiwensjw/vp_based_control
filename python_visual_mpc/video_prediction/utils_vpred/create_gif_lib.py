@@ -286,4 +286,3 @@ if __name__ == '__main__':
     pred = comp_video(file_path, conf)
 
     # comp_pix_distrib(conf['output_dir'])
-
