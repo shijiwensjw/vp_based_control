@@ -1,6 +1,8 @@
 import rospy
 import numpy as np
 from intera_core_msgs.msg import EndpointState
+import geometry_msgs.msg
+
 from threading import Condition
 
 
@@ -8,11 +10,10 @@ class LatestEEObs:
     def __init__(self):
         self._cv = Condition()
         self._latest_eep = None
-        self._eep_sub = rospy.Subscriber('/robot/limb/right/endpoint_state', EndpointState, self._state_listener)
+        self._eep_sub = rospy.Subscriber('/move_group/pose', EndpointState, self._state_listener)
 
     def _state_listener(self, state_msg):
-        pose = state_msg.pose
-
+        pose = geometry_msgs.msg.Pose()
         with self._cv:
             self._latest_eep = np.array([pose.position.x,
                             pose.position.y,
@@ -36,12 +37,12 @@ class LimbRecorder:
         self._ep_handler = LatestEEObs()
 
     def get_state(self):
-        joint_angles = self.get_joint_angles()
-        joint_velocities = self.get_joint_angles_velocity()
+        # joint_angles = self.get_joint_angles()
+        # joint_velocities = self.get_joint_angles_velocity()
         eep = self.get_endeffector_pose()
 
-        return joint_angles, joint_velocities, eep
-
+        # return joint_angles, joint_velocities, eep
+        return eep
     def get_joint_names(self):
         return self._limb.joint_names()
 
@@ -68,9 +69,9 @@ class LimbRecorder:
 
 
 class LimbWSGRecorder(LimbRecorder):
-    def __init__(self, wsg_controller):
-        self._ctrl = wsg_controller
-        LimbRecorder.__init__(self, wsg_controller.limb)
+    def __init__(self, robot_controller):
+        self._ctrl = robot_controller
+        LimbRecorder.__init__(self, robot_controller.limb)
 
     def get_gripper_state(self):
         g_width, g_force = self._ctrl.get_gripper_status(integrate_force=True)
@@ -82,5 +83,5 @@ class LimbWSGRecorder(LimbRecorder):
 
     def get_state(self):
         gripper_state, force_sensor = self.get_gripper_state()
-        j_angles, j_vel, eep = LimbRecorder.get_state(self)
-        return j_angles, j_vel, eep, gripper_state, force_sensor
+        eep = LimbRecorder.get_state(self)
+        return eep, gripper_state, force_sensor

@@ -53,5 +53,3 @@ def draw_poly(img):
 
 if __name__ == '__main__':
     draw_poly(cv2.imread('im0.png'))
-
-

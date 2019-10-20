@@ -136,7 +136,7 @@ class BaseSawyerEnv(BaseEnv):
         # self._controller = ImpedanceWSGController(CONTROL_RATE, self._robot_name, self._hp.print_debug)
         self._controller = RobotController()
 
-        # self._limb_recorder = LimbWSGRecorder(self._controller)
+        self._limb_recorder = LimbWSGRecorder(self._controller)
         self._save_video = self._hp.video_save_dir is not None
         self._main_cam = CameraRecorder('/camera/color/image_raw', self._hp.opencv_tracking, self._save_video)
         # self._left_cam = CameraRecorder('/camera1/image_raw', self._hp.opencv_tracking, self._save_video)
@@ -250,7 +250,7 @@ class BaseSawyerEnv(BaseEnv):
     def _get_obs(self):
         obs = {}
         # get information from robot arm
-        # j_angles, j_vel, eep, gripper_state, force_sensor = self._limb_recorder.get_state()
+        eep = self._limb_recorder.get_state()
         # obs['qpos'] = j_angles
         # obs['qvel'] = j_vel
 
@@ -264,12 +264,12 @@ class BaseSawyerEnv(BaseEnv):
 
         state = np.zeros(self._base_sdim)
         print('state dimension: ',state.shape)
-        # state[:3] = (eep[:3] - self._low_bound[:3]) / (self._high_bound[:3] - self._low_bound[:3])
-        # state[3] = quat_to_zangle(eep[3:])
-        # state[4] = gripper_state * self._low_bound[-1] + (1 - gripper_state) * self._high_bound[-1]
+        state[:3] = (eep[:3] - self._low_bound[:3]) / (self._high_bound[:3] - self._low_bound[:3])
+        state[3] = quat_to_zangle(eep[3:])
+        state[4] = gripper_state * self._low_bound[-1] + (1 - gripper_state) * self._high_bound[-1]
         obs['state'] = state
         # obs['finger_sensors'] = force_sensor
-        obs['finger_sensors'] = 1
+        obs['finger_sensors'] = None
 
         self._last_obs = copy.deepcopy(obs)
         obs['images'] = self.render()

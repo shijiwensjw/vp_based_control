@@ -59,7 +59,7 @@ class MoveGroupTutorial(object):
     # Instantiate a `MoveGroupCommander`_ object.  This object is an interface
     # to one group of joints.  In this case the group is the joints in the UR5
     # arm so we set ``group_name = manipulator``. If you are using a different robot,
-    # you should change this value to the name of your robot arm planning group. 
+    # you should change this value to the name of your robot arm planning group.
     group_name = "manipulator" # See .srdf file to get available group names
     group = moveit_commander.MoveGroupCommander(group_name)
 
@@ -84,7 +84,6 @@ class MoveGroupTutorial(object):
     print ""
 
     # Misc variables
-    self.box_name = ''
     self.robot = robot
     self.scene = scene
     self.group = group
@@ -119,7 +118,7 @@ class MoveGroupTutorial(object):
     joint_goal[2] = 0
     joint_goal[3] = -pi * 0.5
     joint_goal[4] = 0
-    joint_goal[5] = 0    
+    joint_goal[5] = 0
 
     group.go(joint_goal, wait=True)
 
@@ -181,7 +180,7 @@ class MoveGroupTutorial(object):
     waypoints = []
 
     wpose = group.get_current_pose().pose
-    wpose.position.x = 0.2  
+    wpose.position.x = 0.2
     wpose.position.y = 0.01
     wpose.position.z = 0.2
     waypoints.append(copy.deepcopy(wpose))
@@ -199,7 +198,7 @@ class MoveGroupTutorial(object):
 
     return plan, fraction
 
-    
+
 
   def display_trajectory(self, plan):
 
@@ -226,7 +225,7 @@ def main():
     raw_input()
     tutorial = MoveGroupTutorial()
 
-    
+
     #tutorial.get_pose()
     #tutorial.pose_publish()
 
@@ -239,7 +238,7 @@ def main():
         tutorial.go_to_pose_goal()
 	#tutorial.pose_publish()
 
-  
+
 
     #print "============ Press `Enter` to execute go to up state ..."
     #raw_input()
@@ -265,7 +264,3 @@ def main():
 
 if __name__ == '__main__':
   main()
-
-
-
-
