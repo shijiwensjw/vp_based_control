@@ -236,7 +236,7 @@ def main():
     for i in range(1,100):
         print "============ Press `Enter` to execute a movement using a pose goal ..."
         tutorial.go_to_pose_goal()
-	#tutorial.pose_publish()
+	    #tutorial.pose_publish()
 
 
 

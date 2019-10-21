@@ -59,7 +59,7 @@ class MoveGroupTutorial(object):
     # Instantiate a `MoveGroupCommander`_ object.  This object is an interface
     # to one group of joints.  In this case the group is the joints in the UR5
     # arm so we set ``group_name = manipulator``. If you are using a different robot,
-    # you should change this value to the name of your robot arm planning group. 
+    # you should change this value to the name of your robot arm planning group.
     group_name = "manipulator" # See .srdf file to get available group names
     group = moveit_commander.MoveGroupCommander(group_name)
 
@@ -102,122 +102,11 @@ class MoveGroupTutorial(object):
 
     while not rospy.is_shutdown():
         pose_pub = geometry_msgs.msg.Pose()
-	pose_pub = group.get_current_pose().pose
+	    pose_pub = group.get_current_pose().pose
         rospy.loginfo(pose_pub)
         postion_publish.publish(pose_pub)
         rate.sleep()
 
-  def go_to_up_state(self):
-
-    group = self.group
-
-    joint_goal = group.get_current_joint_values()
-    print(type(joint_goal), joint_goal)
-
-    joint_goal[0] = 0
-    joint_goal[1] = -pi * 0.5
-    joint_goal[2] = 0
-    joint_goal[3] = -pi * 0.5
-    joint_goal[4] = 0
-    joint_goal[5] = 0    
-
-    group.go(joint_goal, wait=True)
-
-    group.stop()
-
-    current_joints = self.group.get_current_joint_values()
-    return all_close(joint_goal, current_joints, 0.01)
-
-  def go_to_pose_goal(self):
-
-    group = self.group
-
-    current_pose = group.get_current_pose().pose
-    print("Current pose: ", current_pose)
-
-    pose_goal = geometry_msgs.msg.Pose()
-    pose_goal.orientation.w = 0.608259666252   #1.0
-
-    random_pose_x = 0.35 * random.uniform(-1,1)
-    random_pose_y = 0.15 * random.uniform(-1,1)
-    pose_goal.position.x = 0.18378085026 + random_pose_x
-    pose_goal.position.y = 0.50844698851 + random_pose_y
-
-    pose_goal.position.z = 0.191160579684
-
-    pose_goal.orientation.x = -0.37952934961
-    pose_goal.orientation.y = 0.599131265701
-    pose_goal.orientation.z = 0.356397780093
-
-    group.set_pose_target(pose_goal)
-    #group.set_random_target()
-
-    plan = group.go(wait=True)
-
-    group.stop()
-
-    group.clear_pose_targets()
-
-    current_pose = group.get_current_pose().pose
-    print("New current pose: ", current_pose)
-
-    current_pose = self.group.get_current_pose().pose
-    return all_close(pose_goal, current_pose, 0.01)
-
-
-  def get_pose(self):
-    group = self.group
-    current_pose = group.get_current_pose().pose
-    print("Current pose: ", current_pose)
-    return 0
-
-
-  def plan_cartesian_path(self, scale=1):
-    group = self.group
-
-    current_pose = group.get_current_pose().pose
-    print("Current pose: ", current_pose)
-
-    waypoints = []
-
-    wpose = group.get_current_pose().pose
-    wpose.position.x = 0.2  
-    wpose.position.y = 0.01
-    wpose.position.z = 0.2
-    waypoints.append(copy.deepcopy(wpose))
-
-    wpose.position.y += 0.1
-    waypoints.append(copy.deepcopy(wpose))
-
-    wpose.position.y -= 0.2
-    waypoints.append(copy.deepcopy(wpose))
-
-    (plan, fraction) = group.compute_cartesian_path(
-                                       waypoints,   # waypoints to follow
-                                       0.01,        # eef_step
-                                       0.0)         # jump_threshold
-
-    return plan, fraction
-
-    
-
-  def display_trajectory(self, plan):
-
-    robot = self.robot
-    display_trajectory_publisher = self.display_trajectory_publisher
-
-    display_trajectory = moveit_msgs.msg.DisplayTrajectory()
-    display_trajectory.trajectory_start = robot.get_current_state()
-    display_trajectory.trajectory.append(plan)
-    # Publish
-    display_trajectory_publisher.publish(display_trajectory);
-
-
-  def execute_plan(self, plan):
-
-    group = self.group
-
-    group.execute(plan, wait=True)
 
 
 def main():
@@ -226,46 +115,15 @@ def main():
     raw_input()
     tutorial = MoveGroupTutorial()
 
-    
+
     tutorial.get_pose()
     tutorial.pose_publish()
 
-    #print "============ Press `Enter` to execute a movement using a joint state goal ..."
-    #raw_input()
-    #tutorial.go_to_up_state()
-
-    #for i in range(1,100):
-        #print "============ Press `Enter` to execute a movement using a pose goal ..."
-        #tutorial.go_to_pose_goal()
-	#tutorial.pose_publish()
-
-  
-
-    #print "============ Press `Enter` to execute go to up state ..."
-    #raw_input()
-    #tutorial.go_to_up_state()
-
-    #print "============ Press `Enter` to plan and display a Cartesian path ..."
-    #raw_input()
-    #cartesian_plan, fraction = tutorial.plan_cartesian_path()
-
-    #print "============ Press `Enter` to display a saved trajectory (this will replay the Cartesian path)  ..."
-    #raw_input()
-    #tutorial.display_trajectory(cartesian_plan)
-
-    #print "============ Press `Enter` to execute a saved path ..."
-    #raw_input()
-    #tutorial.execute_plan(cartesian_plan)
-
     print "============ Python tutorial demo complete!"
-  except rospy.ROSInterruptException:
+      except rospy.ROSInterruptException:
     return
-  except KeyboardInterrupt:
+      except KeyboardInterrupt:
     return
 
 if __name__ == '__main__':
   main()
-
-
-
-
