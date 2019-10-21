@@ -142,7 +142,7 @@ class MoveGroupTutorial(object):
     pose_goal.position.x = 0.18378085026 + random_pose_x
     pose_goal.position.y = 0.50844698851 + random_pose_y
 
-    pose_goal.position.z = 0.191160579684
+    pose_goal.position.z = 0.291160579684
 
     pose_goal.orientation.x = -0.37952934961
     pose_goal.orientation.y = 0.599131265701

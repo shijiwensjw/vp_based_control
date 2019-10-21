@@ -6,7 +6,7 @@ from pyquaternion import Quaternion
 from python_visual_mpc.visual_mpc_core.agent.general_agent import Image_Exception
 from python_visual_mpc.visual_mpc_core.envs.sawyer_robot.util.limb_recorder import LimbWSGRecorder
 from python_visual_mpc.visual_mpc_core.envs.sawyer_robot.util.camera_recorder import CameraRecorder
-# from python_visual_mpc.visual_mpc_core.envs.sawyer_robot.util.impedance_wsg_controller import ImpedanceWSGController, NEUTRAL_JOINT_CMD
+from python_visual_mpc.visual_mpc_core.envs.sawyer_robot.util.impedance_wsg_controller import ImpedanceWSGController, NEUTRAL_JOINT_CMD
 # sjw append
 from python_visual_mpc.visual_mpc_core.envs.sawyer_robot.src.visual_mpc_rospkg.src.utils.robot_controller import RobotController
 
@@ -251,6 +251,7 @@ class BaseSawyerEnv(BaseEnv):
         obs = {}
         # get information from robot arm
         eep = self._limb_recorder.get_state()
+        print('eep')
         # obs['qpos'] = j_angles
         # obs['qvel'] = j_vel
 
@@ -266,7 +267,8 @@ class BaseSawyerEnv(BaseEnv):
         print('state dimension: ',state.shape)
         state[:3] = (eep[:3] - self._low_bound[:3]) / (self._high_bound[:3] - self._low_bound[:3])
         state[3] = quat_to_zangle(eep[3:])
-        state[4] = gripper_state * self._low_bound[-1] + (1 - gripper_state) * self._high_bound[-1]
+        # state[4] = gripper_state * self._low_bound[-1] + (1 - gripper_state) * self._high_bound[-1]
+        state[4] = 1
         obs['state'] = state
         # obs['finger_sensors'] = force_sensor
         obs['finger_sensors'] = None
@@ -370,7 +372,6 @@ class BaseSawyerEnv(BaseEnv):
         :return: obs dict (look at step(self, action) for documentation)
         """
         self._save_videos()
-
         if self._hp.start_at_neutral:
             # self._controller.open_gripper(True)
             self._goto_closest_neutral()
@@ -401,7 +402,6 @@ class BaseSawyerEnv(BaseEnv):
         rand_xyz = np.random.uniform(self._low_bound[:3], self._high_bound[:3])
         rand_zangle = np.random.uniform(self._low_bound[3], self._high_bound[3])
         # self._move_to_state(rand_xyz, rand_zangle, 2.)
-
         return self._end_reset()
 
     def valid_rollout(self):

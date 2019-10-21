@@ -188,10 +188,11 @@ class GeneralAgent(object):
         # Take the sample.
         t = 0
         done = self._hyperparams['T'] <= 0
+        print('first obs')
         initial_env_obs, _ = self.env.reset()
+        print('running???')
         obs = self._post_process_obs(initial_env_obs, agent_data, True)
         policy.reset()
-
         while not done:
             """
             Every time step send observations to policy, acts in environment, and records observations
@@ -205,7 +206,7 @@ class GeneralAgent(object):
             """
             pi_t = policy.act(**get_policy_args(policy, obs, t, i_traj, agent_data))
             policy_outputs.append(pi_t)
-
+            print('209')
             try:
                 obs = self._post_process_obs(self.env.step(copy.deepcopy(pi_t['actions'])), agent_data)
             except Environment_Exception as e:

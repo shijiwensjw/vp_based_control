@@ -1,0 +1,20 @@
+<launch>
+     <include file="$(find realsense2_camera)/launch/rs_rgbd.launch"/>
+
+     <include file="$(find ur_modern_driver)/launch/ur5_bringup.launch">
+       <arg name="limited" value="true"/>
+       <arg name="robot_ip" value="192.168.1.50"/>
+     </include>
+
+     <include file="$(find ur5_moveit_config)/launch/move_group.launch">
+       <arg name="limited" value="true"/>
+     </include>
+
+     <!-- <node pkg="visual_mpc_rospkg" type="move_group_tutorial_ur5.py" name="move_group_tutorial_ur5"/> -->
+     <node pkg="visual_mpc_rospkg" type="move_group_listen.py" name="move_group_listen"/>
+     <!--<node pkg="visual_mpc_rospkg" type="primitives_regintervals.py" name="primitives_regintervals" launch-prefix="xterm -e">-->
+          <!--<param name="robot" value="$(arg robot)"/>-->
+          <!--<param name="savedir" value=""/>-->
+     <!--</node>-->
+     <!--<include file="$(find visual_mpc_rospkg)/launch/start_gripper_autoupdate_$(arg robot).launch"/>-->
+</launch>

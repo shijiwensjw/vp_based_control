@@ -1,6 +1,6 @@
 import rospy
 import numpy as np
-from intera_core_msgs.msg import EndpointState
+# from intera_core_msgs.msg import EndpointState
 import geometry_msgs.msg
 
 from threading import Condition
@@ -10,7 +10,7 @@ class LatestEEObs:
     def __init__(self):
         self._cv = Condition()
         self._latest_eep = None
-        self._eep_sub = rospy.Subscriber('/move_group/pose', EndpointState, self._state_listener)
+        self._eep_sub = rospy.Subscriber('/move_group/pose', geometry_msgs.msg.Pose, self._state_listener)
 
     def _state_listener(self, state_msg):
         pose = geometry_msgs.msg.Pose()
@@ -33,7 +33,7 @@ class LatestEEObs:
 
 class LimbRecorder:
     def __init__(self, control_limb):
-        self._limb = control_limb
+        # self._limb = control_limb
         self._ep_handler = LatestEEObs()
 
     def get_state(self):
@@ -71,7 +71,8 @@ class LimbRecorder:
 class LimbWSGRecorder(LimbRecorder):
     def __init__(self, robot_controller):
         self._ctrl = robot_controller
-        LimbRecorder.__init__(self, robot_controller.limb)
+        # LimbRecorder.__init__(self, robot_controller.limb)
+        LimbRecorder.__init__(self, None)
 
     def get_gripper_state(self):
         g_width, g_force = self._ctrl.get_gripper_status(integrate_force=True)
@@ -82,6 +83,7 @@ class LimbWSGRecorder(LimbRecorder):
         return np.array([gripper_status]), np.array([g_force])
 
     def get_state(self):
-        gripper_state, force_sensor = self.get_gripper_state()
+        # gripper_state, force_sensor = self.get_gripper_state()
         eep = LimbRecorder.get_state(self)
-        return eep, gripper_state, force_sensor
+        # return eep, gripper_state, force_sensor
+        return eep

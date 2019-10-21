@@ -27,9 +27,9 @@ class RobotController(object):
         print("Robot enabled...")
 
         # temperal Comment for debuging code
-        '''
-        self.limb = intera_interface.Limb("right")
 
+        # self.limb = intera_interface.Limb("right")
+        '''
         self.sawyer_gripper = False
         if self.sawyer_gripper:
             self.gripper = intera_interface.Gripper("right")
