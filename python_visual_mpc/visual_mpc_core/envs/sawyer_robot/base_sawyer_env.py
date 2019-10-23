@@ -131,7 +131,6 @@ class BaseSawyerEnv(BaseEnv):
             self._obs_tol = 0.5
         else:
             self._obs_tol = self._hp.OFFSET_TOL
-        print('test point')
 
         # self._controller = ImpedanceWSGController(CONTROL_RATE, self._robot_name, self._hp.print_debug)
         self._controller = RobotController()
@@ -181,10 +180,8 @@ class BaseSawyerEnv(BaseEnv):
     def _setup_robot(self):
         low_angle = np.pi / 2                  # chosen to maximize wrist rotation given start rotation
         high_angle = 265 * np.pi / 180
-        if self._robot_name == 'vestri':
-            self._low_bound = np.array([0.47, -0.2, 0.176, low_angle, -1])
-            self._high_bound = np.array([0.88, 0.2, 0.292, high_angle, 1])
-        elif self._robot_name == 'sudri':
+
+        if self._robot_name == 'sudri':
             self._low_bound = np.array([0.44, -0.18, 0.176, low_angle, -1])
             self._high_bound = np.array([0.85, 0.22, 0.292, high_angle, 1])
         else:
@@ -251,7 +248,6 @@ class BaseSawyerEnv(BaseEnv):
         obs = {}
         # get information from robot arm
         eep = self._limb_recorder.get_state()
-        print('eep')
         # obs['qpos'] = j_angles
         # obs['qvel'] = j_vel
 
@@ -264,7 +260,7 @@ class BaseSawyerEnv(BaseEnv):
                                                              # np.rad2deg(self._previous_target_qpos[3]))
 
         state = np.zeros(self._base_sdim)
-        print('state dimension: ',state.shape)
+        # print('state dimension: ',state.shape)
         state[:3] = (eep[:3] - self._low_bound[:3]) / (self._high_bound[:3] - self._low_bound[:3])
         state[3] = quat_to_zangle(eep[3:])
         # state[4] = gripper_state * self._low_bound[-1] + (1 - gripper_state) * self._high_bound[-1]

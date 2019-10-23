@@ -13,7 +13,8 @@ class LatestEEObs:
         self._eep_sub = rospy.Subscriber('/move_group/pose', geometry_msgs.msg.Pose, self._state_listener)
 
     def _state_listener(self, state_msg):
-        pose = geometry_msgs.msg.Pose()
+        # print('state_msg: ',state_msg)
+        pose = state_msg
         with self._cv:
             self._latest_eep = np.array([pose.position.x,
                             pose.position.y,
