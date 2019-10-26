@@ -17,7 +17,7 @@ import rospy
 import os
 from python_visual_mpc.video_prediction.utils_vpred.create_gif_lib import npy_to_mp4
 from .util.user_interface import select_points
-
+from python_visual_mpc.visual_mpc_core.envs.sawyer_robot.src.visual_mpc_rospkg.src.move_to_state import MoveGroupUR
 
 CONTROL_RATE = 800
 CONTROL_PERIOD = 1. / CONTROL_RATE
@@ -155,6 +155,8 @@ class BaseSawyerEnv(BaseEnv):
 
         self._start_pix, self._desig_pix, self._goal_pix = None, None, None
         # self._goto_closest_neutral()
+        # Implement a object to excute the action
+        self.ur_robot = MoveGroupUR()
 
     def _default_hparams(self):
         default_dict = {'robot_name': None,
@@ -182,15 +184,15 @@ class BaseSawyerEnv(BaseEnv):
         high_angle = 265 * np.pi / 180
 
         if self._robot_name == 'sudri':
-            self._low_bound = np.array([0.44, -0.18, 0.176, low_angle, -1])
-            self._high_bound = np.array([0.85, 0.22, 0.292, high_angle, 1])
+            self._low_bound = np.array([-0.416, 0.352, 0.166, low_angle, -1])
+            self._high_bound = np.array([0.556, 0.926, 0.232, high_angle, 1])
         else:
             raise ValueError("Supported robots are vestri/sudri")
 
         self._high_bound += np.array(self._hp.upper_bound_delta, dtype=np.float64)
         self._low_bound += np.array(self._hp.lower_bound_delta, dtype=np.float64)
 
-    def step(self, action):
+    def step(self, action_quat):
         """
         Applies the action and steps simulation
         :param action: action at time-step
@@ -201,10 +203,12 @@ class BaseSawyerEnv(BaseEnv):
                   -images should be placed in the 'images' key in a (ncam, ...) array
         """
         if self._hp.normalize_actions:
-            action[:3] *= self._high_bound[:3] - self._low_bound[:3]
+            action_quat[:3] *= self._high_bound[:3] - self._low_bound[:3]
 
-        target_qpos = np.clip(self._next_qpos(action), self._low_bound, self._high_bound)
-        wait_change = (target_qpos[-1] > 0) != (self._previous_target_qpos[-1] > 0)
+        # target_qpos = np.clip(self._next_qpos(action), self._low_bound, self._high_bound)
+        # wait_change = (target_qpos[-1] > 0) != (self._previous_target_qpos[-1] > 0)
+        target_qpos = np.clip(action_quat[:3], self._low_bound[:3], self._high_bound[:3])
+        print('target_qpos: ', target_qpos)
 
         if self._save_video:
             self._main_cam.start_recording() #, self._left_cam.start_recording()
@@ -213,8 +217,8 @@ class BaseSawyerEnv(BaseEnv):
         #     self._controller.close_gripper(wait_change)
         # else:
         #     self._controller.open_gripper(wait_change)
-
-        # self._move_to_state(target_qpos[:3], target_qpos[3])
+        target_qpos = target_qpos[:3]
+        self.ur_robot.move_to_state(target_qpos, None)
 
         if self._save_video:
             self._main_cam.stop_recording() #, self._left_cam.stop_recording()
@@ -287,32 +291,32 @@ class BaseSawyerEnv(BaseEnv):
         cur_xyz, cur_quat = self._limb_recorder.get_xyz_quat()
         return cur_xyz, quat_to_zangle(cur_quat)
 
-    def _move_to_state(self, target_xyz, target_zangle, duration = None):
-        if duration is None:
-            duration = self._duration
-        p1 = np.zeros(4)
-        p1[:3], p1[3] = self._get_xyz_angle()
-        p2 = np.zeros(4)
-        p2[:3], p2[3] = target_xyz, target_zangle
-
-        last_pos = self._limb_recorder.get_joint_angles()
-        last_cmd = self._limb_recorder.get_joint_cmd()
-        joint_names = self._limb_recorder.get_joint_names()
-
-        interp_jas = precalculate_interpolation(p1, p2, duration, last_pos, last_cmd, joint_names)
-
-        i = 0
-        # self._controller.control_rate.sleep()
-        start_time = rospy.get_time()
-        t = rospy.get_time()
-        while t - start_time < duration:
-            lookup_index = min(int(min((t - start_time), duration) / CONTROL_PERIOD), len(interp_jas) - 1)
-            self._controller.send_pos_command(interp_jas[lookup_index])
-            i += 1
-            self._controller.control_rate.sleep()
-            t = rospy.get_time()
-        if self._hp.print_debug:
-            print('Effective rate: {} Hz'.format(i / (rospy.get_time() - start_time)))
+    # def _move_to_state(self, target_xyz, target_zangle, duration = None):
+    #     if duration is None:
+    #         duration = self._duration
+    #     p1 = np.zeros(4)
+    #     p1[:3], p1[3] = self._get_xyz_angle()
+    #     p2 = np.zeros(4)
+    #     p2[:3], p2[3] = target_xyz, target_zangle
+    #
+    #     last_pos = self._limb_recorder.get_joint_angles()
+    #     last_cmd = self._limb_recorder.get_joint_cmd()
+    #     joint_names = self._limb_recorder.get_joint_names()
+    #
+    #     interp_jas = precalculate_interpolation(p1, p2, duration, last_pos, last_cmd, joint_names)
+    #
+    #     i = 0
+    #     # self._controller.control_rate.sleep()
+    #     start_time = rospy.get_time()
+    #     t = rospy.get_time()
+    #     while t - start_time < duration:
+    #         lookup_index = min(int(min((t - start_time), duration) / CONTROL_PERIOD), len(interp_jas) - 1)
+    #         self._controller.send_pos_command(interp_jas[lookup_index])
+    #         i += 1
+    #         self._controller.control_rate.sleep()
+    #         t = rospy.get_time()
+    #     if self._hp.print_debug:
+    #         print('Effective rate: {} Hz'.format(i / (rospy.get_time() - start_time)))
 
     def _reset_previous_qpos(self):
         # eep = self._limb_recorder.get_state()[2]

@@ -205,10 +205,12 @@ class GeneralAgent(object):
             """
             pi_t = policy.act(**get_policy_args(policy, obs, t, i_traj, agent_data))
             policy_outputs.append(pi_t)
+            # print('i_trial: {} i_traj: {}'.format(i_trial, i_traj))
             # print('policy_outputs: ', policy_outputs)
 
             try:
                 obs = self._post_process_obs(self.env.step(copy.deepcopy(pi_t['actions'])), agent_data)
+                print('pi_t[actions]: ', pi_t['actions'])
             except Environment_Exception as e:
                 print(e)
                 return {'traj_ok': False}, None, None

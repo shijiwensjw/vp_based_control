@@ -135,18 +135,18 @@ class MoveGroupTutorial(object):
     print("Current pose: ", current_pose)
 
     pose_goal = geometry_msgs.msg.Pose()
-    pose_goal.orientation.w = 0.608259666252   #1.0
+    pose_goal.orientation.w = 0.535960768954  #1.0
 
-    random_pose_x = 0.35 * random.uniform(-1,1)
-    random_pose_y = 0.15 * random.uniform(-1,1)
-    pose_goal.position.x = 0.18378085026 + random_pose_x
-    pose_goal.position.y = 0.50844698851 + random_pose_y
+    random_pose_x = 0.33 * random.uniform(-1,1)
+    random_pose_y = 0.24 * random.uniform(-1,1)
+    pose_goal.position.x = 0.22078085026 + random_pose_x
+    pose_goal.position.y = 0.68844698851 + random_pose_y
 
-    pose_goal.position.z = 0.491160579684
+    pose_goal.position.z = 0.191160579684
 
-    pose_goal.orientation.x = -0.37952934961
-    pose_goal.orientation.y = 0.599131265701
-    pose_goal.orientation.z = 0.356397780093
+    pose_goal.orientation.x = -0.415964133446
+    pose_goal.orientation.y = 0.352373748554
+    pose_goal.orientation.z = 0.644633721705
 
     group.set_pose_target(pose_goal)
     #group.set_random_target()
