@@ -217,8 +217,7 @@ class BaseSawyerEnv(BaseEnv):
         #     self._controller.close_gripper(wait_change)
         # else:
         #     self._controller.open_gripper(wait_change)
-        target_qpos = target_qpos[:3]
-        self.ur_robot.move_to_state(target_qpos, None)
+        self.ur_robot.move_to_state(target_qpos[:3], None)
 
         if self._save_video:
             self._main_cam.stop_recording() #, self._left_cam.stop_recording()

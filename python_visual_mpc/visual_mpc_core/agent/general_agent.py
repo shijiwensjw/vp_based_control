@@ -77,6 +77,7 @@ class GeneralAgent(object):
         i_trial = 0
         imax = 100
 
+        # In order to make sure the traj is ok, try but no more than 100 times and traj_ok is True
         while not traj_ok and i_trial < imax:
             i_trial += 1
             try:
