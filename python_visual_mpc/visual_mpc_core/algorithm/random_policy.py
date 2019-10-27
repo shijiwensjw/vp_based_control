@@ -24,7 +24,7 @@ class Randompolicy(Policy):
             'repeat': 3,
             'action_bound': True,
             'action_order': [None],
-            'initial_std': 0.05,   #std dev. in xy
+            'initial_std': 0.2,   #std dev. in xy
             'initial_std_lift': 0.15,   #std dev. in xy
             'initial_std_rot': np.pi / 18,
             'initial_std_grasp': 2,
@@ -44,6 +44,7 @@ class Randompolicy(Policy):
             # initialize mean and variance of the discrete actions to their mean and variance used during data collection
             sigma = construct_initial_sigma(self._hp, self.adim)
             self.actions = np.random.multivariate_normal(mean, sigma).reshape(self._hp.nactions, -1)
+            print('mean:{}\n, sigma:{}\n, actions:{}\n').format(mean, sigma, self.actions)
             self.process_actions()
         return {'actions': self.actions[t, :self.adim]}
 
@@ -61,7 +62,7 @@ class Randompolicy(Policy):
             actions = discretize_gripper(actions, self._hp)
         if self._hp.action_bound:
             actions = truncate_movement(actions, self._hp)
-            
+
         actions = np.repeat(actions, self._hp.repeat, axis=0)
         return actions
 

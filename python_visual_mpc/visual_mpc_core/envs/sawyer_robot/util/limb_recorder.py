@@ -40,6 +40,7 @@ class LimbRecorder:
     def get_state(self):
         # joint_angles = self.get_joint_angles()
         # joint_velocities = self.get_joint_angles_velocity()
+        np.set_printoptions(formatter={'float': '{: 0.8f}'.format})
         eep = self.get_endeffector_pose()
 
         # return joint_angles, joint_velocities, eep

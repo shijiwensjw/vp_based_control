@@ -186,6 +186,7 @@ class BaseSawyerEnv(BaseEnv):
         if self._robot_name == 'sudri':
             self._low_bound = np.array([-0.416, 0.352, 0.166, low_angle, -1])
             self._high_bound = np.array([0.556, 0.926, 0.232, high_angle, 1])
+            self._middle = (self._low_bound[:3] + self._high_bound[:3]) / 2
         else:
             raise ValueError("Supported robots are vestri/sudri")
 
@@ -202,12 +203,12 @@ class BaseSawyerEnv(BaseEnv):
                   -keys corresponding to numpy arrays should have constant shape every timestep (for caching)
                   -images should be placed in the 'images' key in a (ncam, ...) array
         """
-        if self._hp.normalize_actions:
-            action_quat[:3] *= self._high_bound[:3] - self._low_bound[:3]
+        # if self._hp.normalize_actions:
+        #     action_quat[:3] *= self._high_bound[:3] - self._low_bound[:3]
 
         # target_qpos = np.clip(self._next_qpos(action), self._low_bound, self._high_bound)
         # wait_change = (target_qpos[-1] > 0) != (self._previous_target_qpos[-1] > 0)
-        target_qpos = np.clip(action_quat[:3], self._low_bound[:3], self._high_bound[:3])
+        target_qpos = np.clip(action_quat[:3] + self._middle, self._low_bound[:3], self._high_bound[:3])
         print('target_qpos: ', target_qpos)
 
         if self._save_video:
@@ -240,12 +241,16 @@ class BaseSawyerEnv(BaseEnv):
         raise NotImplementedError
 
     def _get_state(self):
-        j_angles, j_vel, eep, gripper_state, force_sensor = self._limb_recorder.get_state()
+        eep = self._limb_recorder.get_state()
         state = np.zeros(self._base_sdim)
-        state[:3] = (eep[:3] - self._low_bound[:3]) / (self._high_bound[:3] - self._low_bound[:3])
-        state[3] = quat_to_zangle(eep[3:])
-        state[4] = gripper_state * self._low_bound[-1] + (1 - gripper_state) * self._high_bound[-1]
-        return state
+        state_norm = np.zeros(self._base_sdim)
+
+        state = eep
+        state_norm[:3] = (eep[:3] - self._low_bound[:3]) / (self._high_bound[:3] - self._low_bound[:3])
+        state_norm[3] = quat_to_zangle(eep[3:])
+        state_norm[4] = None
+
+        return state, state_norm
 
     def _get_obs(self):
         obs = {}
@@ -263,12 +268,16 @@ class BaseSawyerEnv(BaseEnv):
                                                              # np.rad2deg(self._previous_target_qpos[3]))
 
         state = np.zeros(self._base_sdim)
-        # print('state dimension: ',state.shape)
-        state[:3] = (eep[:3] - self._low_bound[:3]) / (self._high_bound[:3] - self._low_bound[:3])
-        state[3] = quat_to_zangle(eep[3:])
+        state_norm = np.zeros(self._base_sdim)
+
+        # print('state dimension: ',state.shape)\
+        state = eep
+        state_norm[:3] = (eep[:3] - self._low_bound[:3]) / (self._high_bound[:3] - self._low_bound[:3])
+        state_norm[3] = quat_to_zangle(eep[3:])
         # state[4] = gripper_state * self._low_bound[-1] + (1 - gripper_state) * self._high_bound[-1]
-        state[4] = 1
+        state_norm[4] = None
         obs['state'] = state
+        obs['state_norm'] = state_norm
         # obs['finger_sensors'] = force_sensor
         obs['finger_sensors'] = None
 
@@ -289,33 +298,6 @@ class BaseSawyerEnv(BaseEnv):
     def _get_xyz_angle(self):
         cur_xyz, cur_quat = self._limb_recorder.get_xyz_quat()
         return cur_xyz, quat_to_zangle(cur_quat)
-
-    # def _move_to_state(self, target_xyz, target_zangle, duration = None):
-    #     if duration is None:
-    #         duration = self._duration
-    #     p1 = np.zeros(4)
-    #     p1[:3], p1[3] = self._get_xyz_angle()
-    #     p2 = np.zeros(4)
-    #     p2[:3], p2[3] = target_xyz, target_zangle
-    #
-    #     last_pos = self._limb_recorder.get_joint_angles()
-    #     last_cmd = self._limb_recorder.get_joint_cmd()
-    #     joint_names = self._limb_recorder.get_joint_names()
-    #
-    #     interp_jas = precalculate_interpolation(p1, p2, duration, last_pos, last_cmd, joint_names)
-    #
-    #     i = 0
-    #     # self._controller.control_rate.sleep()
-    #     start_time = rospy.get_time()
-    #     t = rospy.get_time()
-    #     while t - start_time < duration:
-    #         lookup_index = min(int(min((t - start_time), duration) / CONTROL_PERIOD), len(interp_jas) - 1)
-    #         self._controller.send_pos_command(interp_jas[lookup_index])
-    #         i += 1
-    #         self._controller.control_rate.sleep()
-    #         t = rospy.get_time()
-    #     if self._hp.print_debug:
-    #         print('Effective rate: {} Hz'.format(i / (rospy.get_time() - start_time)))
 
     def _reset_previous_qpos(self):
         # eep = self._limb_recorder.get_state()[2]
