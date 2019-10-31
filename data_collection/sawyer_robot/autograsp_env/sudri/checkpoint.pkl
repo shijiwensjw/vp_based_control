@@ -1,7 +1,7 @@
 (dp1
 S'ntraj'
 p2
-I35
+I71
 sS'broken_traj'
 p3
 (lp4

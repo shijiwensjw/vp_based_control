@@ -15,6 +15,7 @@ from math import pi
 from std_msgs.msg import String
 from moveit_commander.conversions import pose_to_list
 import random
+import numpy as np
 ## END_SUB_TUTORIAL
 
 def all_close(goal, actual, tolerance):
@@ -54,7 +55,7 @@ class MoveGroupTutorial(object):
 
     # Instantiate a `PlanningSceneInterface`_ object.  This object is an interface
     # to the world surrounding the robot:
-    scene = moveit_commander.PlanningSceneInterface()
+    # scene = moveit_commander.PlanningSceneInterface()
 
     # Instantiate a `MoveGroupCommander`_ object.  This object is an interface
     # to one group of joints.  In this case the group is the joints in the UR5
@@ -63,9 +64,9 @@ class MoveGroupTutorial(object):
     group_name = "manipulator" # See .srdf file to get available group names
     group = moveit_commander.MoveGroupCommander(group_name)
 
-    display_trajectory_publisher = rospy.Publisher('/move_group/display_planned_path',
-                                                   moveit_msgs.msg.DisplayTrajectory,
-                                                   queue_size=20)
+    # display_trajectory_publisher = rospy.Publisher('/move_group/display_planned_path',
+    #                                                moveit_msgs.msg.DisplayTrajectory,
+    #                                                queue_size=20)
     #postion_publish = rospy.Publisher('/move_group/pose',
                                           # geometry_msgs.msg.Pose,
                                           # queue_size=20)
@@ -85,26 +86,33 @@ class MoveGroupTutorial(object):
 
     # Misc variables
     self.robot = robot
-    self.scene = scene
+    # self.scene = scene
     self.group = group
-    self.display_trajectory_publisher = display_trajectory_publisher
+    # self.display_trajectory_publisher = display_trajectory_publisher
     #self.postion_publish = postion_publish
     self.planning_frame = planning_frame
     self.eef_link = eef_link
     self.group_names = group_names
 
-  def pose_publish(self):
+    self._low_bound = np.array([-0.416, 0.352, 0.167, -1])
+    self._high_bound = np.array([0.556, 0.926, 0.170, 1])
 
-    group = self.group
-    postion_publish = self.postion_publish
-    rate = rospy.Rate(10) # 10hz
+    group.set_max_velocity_scaling_factor(0.2)
+    group.set_max_acceleration_scaling_factor(0.04)
 
-    while not rospy.is_shutdown():
-        pose_pub = geometry_msgs.msg.Pose()
-	pose_pub = group.get_current_pose().pose
-        rospy.loginfo(pose_pub)
-        postion_publish.publish(pose_pub)
-        rate.sleep()
+
+  # def pose_publish(self):
+  #
+  #   group = self.group
+  #   postion_publish = self.postion_publish
+  #   rate = rospy.Rate(10) # 10hz
+  #
+  #   while not rospy.is_shutdown():
+  #       pose_pub = geometry_msgs.msg.Pose()
+	# pose_pub = group.get_current_pose().pose
+  #       rospy.loginfo(pose_pub)
+  #       postion_publish.publish(pose_pub)
+  #       rate.sleep()
 
   def go_to_up_state(self):
 
@@ -135,15 +143,13 @@ class MoveGroupTutorial(object):
     print("Current pose: ", current_pose)
 
     pose_goal = geometry_msgs.msg.Pose()
+
+
+    pose_goal.position.x = random.uniform(self._low_bound[0], self._high_bound[0])
+    pose_goal.position.y = random.uniform(self._low_bound[1], self._high_bound[1])
+    pose_goal.position.z = random.uniform(self._low_bound[2], self._high_bound[2])
+
     pose_goal.orientation.w = 0.535960768954  #1.0
-
-    random_pose_x = 0.33 * random.uniform(-1,1)
-    random_pose_y = 0.24 * random.uniform(-1,1)
-    pose_goal.position.x = 0.22078085026 + random_pose_x
-    pose_goal.position.y = 0.68844698851 + random_pose_y
-
-    pose_goal.position.z = 0.191160579684
-
     pose_goal.orientation.x = -0.415964133446
     pose_goal.orientation.y = 0.352373748554
     pose_goal.orientation.z = 0.644633721705
@@ -171,45 +177,45 @@ class MoveGroupTutorial(object):
     return 0
 
 
-  def plan_cartesian_path(self, scale=1):
-    group = self.group
+  # def plan_cartesian_path(self, scale=1):
+  #   group = self.group
+  #
+  #   current_pose = group.get_current_pose().pose
+  #   print("Current pose: ", current_pose)
+  #
+  #   waypoints = []
+  #
+  #   wpose = group.get_current_pose().pose
+  #   wpose.position.x = 0.2
+  #   wpose.position.y = 0.01
+  #   wpose.position.z = 0.2
+  #   waypoints.append(copy.deepcopy(wpose))
+  #
+  #   wpose.position.y += 0.1
+  #   waypoints.append(copy.deepcopy(wpose))
+  #
+  #   wpose.position.y -= 0.2
+  #   waypoints.append(copy.deepcopy(wpose))
+  #
+  #   (plan, fraction) = group.compute_cartesian_path(
+  #                                      waypoints,   # waypoints to follow
+  #                                      0.01,        # eef_step
+  #                                      0.0)         # jump_threshold
+  #
+  #   return plan, fraction
 
-    current_pose = group.get_current_pose().pose
-    print("Current pose: ", current_pose)
-
-    waypoints = []
-
-    wpose = group.get_current_pose().pose
-    wpose.position.x = 0.2
-    wpose.position.y = 0.01
-    wpose.position.z = 0.2
-    waypoints.append(copy.deepcopy(wpose))
-
-    wpose.position.y += 0.1
-    waypoints.append(copy.deepcopy(wpose))
-
-    wpose.position.y -= 0.2
-    waypoints.append(copy.deepcopy(wpose))
-
-    (plan, fraction) = group.compute_cartesian_path(
-                                       waypoints,   # waypoints to follow
-                                       0.01,        # eef_step
-                                       0.0)         # jump_threshold
-
-    return plan, fraction
 
 
-
-  def display_trajectory(self, plan):
-
-    robot = self.robot
-    display_trajectory_publisher = self.display_trajectory_publisher
-
-    display_trajectory = moveit_msgs.msg.DisplayTrajectory()
-    display_trajectory.trajectory_start = robot.get_current_state()
-    display_trajectory.trajectory.append(plan)
-    # Publish
-    display_trajectory_publisher.publish(display_trajectory);
+  # def display_trajectory(self, plan):
+  #
+  #   robot = self.robot
+  #   # display_trajectory_publisher = self.display_trajectory_publisher
+  #
+  #   display_trajectory = moveit_msgs.msg.DisplayTrajectory()
+  #   display_trajectory.trajectory_start = robot.get_current_state()
+  #   display_trajectory.trajectory.append(plan)
+  #   # Publish
+  #   # display_trajectory_publisher.publish(display_trajectory);
 
 
   def execute_plan(self, plan):
@@ -233,8 +239,8 @@ def main():
     #raw_input()
     #tutorial.go_to_up_state()
 
-    for i in range(1,100):
-        print "============ Press `Enter` to execute a movement using a pose goal ..."
+    for i in range(1,1000):
+        print "Begin {}th trial".format(i)
         tutorial.go_to_pose_goal()
 	    #tutorial.pose_publish()
 

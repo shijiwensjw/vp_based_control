@@ -1,8 +1,4 @@
 #!/usr/bin/env python
-
-#
-# Code adapted from https://github.com/ros-planning/moveit_tutorials/blob/kinetic-devel/doc/move_group_python_interface/scripts/move_group_python_interface_tutorial.py
-# to UR5 robot
 #
 from math import pi
 import sys
@@ -16,28 +12,6 @@ from std_msgs.msg import String
 from moveit_commander.conversions import pose_to_list
 import random
 ## END_SUB_TUTORIAL
-
-# def all_close(goal, actual, tolerance):
-#   """
-#   Convenience method for testing if a list of values are within a tolerance of their counterparts in another list
-#   @param: goal       A list of floats, a Pose or a PoseStamped
-#   @param: actual     A list of floats, a Pose or a PoseStamped
-#   @param: tolerance  A float
-#   @returns: bool
-#   """
-#   all_equal = True
-#   if type(goal) is list:
-#     for index in range(len(goal)):
-#       if abs(actual[index] - goal[index]) > tolerance:
-#         return False
-#
-#   elif type(goal) is geometry_msgs.msg.PoseStamped:
-#     return all_close(goal.pose, actual.pose, tolerance)
-#
-#   elif type(goal) is geometry_msgs.msg.Pose:
-#     return all_close(pose_to_list(goal), pose_to_list(actual), tolerance)
-#
-#   return True
 
 class MoveGroupTutorial(object):
   """MoveGroupTutorial"""
@@ -54,7 +28,7 @@ class MoveGroupTutorial(object):
 
     # Instantiate a `PlanningSceneInterface`_ object.  This object is an interface
     # to the world surrounding the robot:
-    scene = moveit_commander.PlanningSceneInterface()
+    # scene = moveit_commander.PlanningSceneInterface()
 
     # Instantiate a `MoveGroupCommander`_ object.  This object is an interface
     # to one group of joints.  In this case the group is the joints in the UR5
@@ -63,9 +37,9 @@ class MoveGroupTutorial(object):
     group_name = "manipulator" # See .srdf file to get available group names
     group = moveit_commander.MoveGroupCommander(group_name)
 
-    display_trajectory_publisher = rospy.Publisher('/move_group/display_planned_path',
-                                                   moveit_msgs.msg.DisplayTrajectory,
-                                                   queue_size=20)
+    # display_trajectory_publisher = rospy.Publisher('/move_group/display_planned_path',
+    #                                                moveit_msgs.msg.DisplayTrajectory,
+    #                                                queue_size=20)
     postion_publish = rospy.Publisher('/move_group/pose',
                                            geometry_msgs.msg.Pose,
                                            queue_size=20)
@@ -86,9 +60,9 @@ class MoveGroupTutorial(object):
     # Misc variables
     self.box_name = ''
     self.robot = robot
-    self.scene = scene
+    # self.scene = scene
     self.group = group
-    self.display_trajectory_publisher = display_trajectory_publisher
+    # self.display_trajectory_publisher = display_trajectory_publisher
     self.postion_publish = postion_publish
     self.planning_frame = planning_frame
     self.eef_link = eef_link
@@ -98,7 +72,7 @@ class MoveGroupTutorial(object):
 
     group = self.group
     postion_publish = self.postion_publish
-    rate = rospy.Rate(10) # 10hz
+    rate = rospy.Rate(100) # 10hz
 
     while not rospy.is_shutdown():
       # pose_pub = geometry_msgs.msg.Pose()

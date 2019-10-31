@@ -19,6 +19,8 @@ from python_visual_mpc.video_prediction.utils_vpred.create_gif_lib import npy_to
 from .util.user_interface import select_points
 from python_visual_mpc.visual_mpc_core.envs.sawyer_robot.src.visual_mpc_rospkg.src.move_to_state import MoveGroupUR
 
+import moveit_commander
+
 CONTROL_RATE = 800
 CONTROL_PERIOD = 1. / CONTROL_RATE
 INTERP_SKIP = 16
@@ -156,7 +158,10 @@ class BaseSawyerEnv(BaseEnv):
         self._start_pix, self._desig_pix, self._goal_pix = None, None, None
         # self._goto_closest_neutral()
         # Implement a object to excute the action
-        self.ur_robot = MoveGroupUR()
+        self.ur_robot = MoveGroupUR()\
+
+        self.group = moveit_commander.MoveGroupCommander("manipulator")
+
 
     def _default_hparams(self):
         default_dict = {'robot_name': None,
@@ -218,7 +223,7 @@ class BaseSawyerEnv(BaseEnv):
         #     self._controller.close_gripper(wait_change)
         # else:
         #     self._controller.open_gripper(wait_change)
-        self.ur_robot.move_to_state(target_qpos[:3], None)
+        # self.ur_robot.move_to_state(target_qpos[:3], None)
 
         if self._save_video:
             self._main_cam.stop_recording() #, self._left_cam.stop_recording()
@@ -255,7 +260,16 @@ class BaseSawyerEnv(BaseEnv):
     def _get_obs(self):
         obs = {}
         # get information from robot arm
-        eep = self._limb_recorder.get_state()
+        # eep = self._limb_recorder.get_state()
+
+        current_pose = self.group.get_current_pose().pose
+        eep = np.array([current_pose.position.x,
+                        current_pose.position.y,
+                        current_pose.position.z,
+                        current_pose.orientation.w,
+                        current_pose.orientation.x,
+                        current_pose.orientation.y,
+                        current_pose.orientation.z])
         # obs['qpos'] = j_angles
         # obs['qvel'] = j_vel
 
@@ -382,7 +396,7 @@ class BaseSawyerEnv(BaseEnv):
 
         rand_xyz = np.random.uniform(self._low_bound[:3], self._high_bound[:3])
         rand_zangle = np.random.uniform(self._low_bound[3], self._high_bound[3])
-        # self._move_to_state(rand_xyz, rand_zangle, 2.)
+        # self.ur_robot.move_to_state(rand_xyz, rand_zangle, 2.)
         return self._end_reset()
 
     def valid_rollout(self):
