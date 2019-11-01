@@ -44,7 +44,7 @@ class Randompolicy(Policy):
             # initialize mean and variance of the discrete actions to their mean and variance used during data collection
             sigma = construct_initial_sigma(self._hp, self.adim)
             self.actions = np.random.multivariate_normal(mean, sigma).reshape(self._hp.nactions, -1)
-            print('mean:{}\n, sigma:{}\n, actions:{}\n').format(mean, sigma, self.actions)
+            # print('mean:{}\n, sigma:{}\n, actions:{}\n').format(mean, sigma, self.actions)
             self.process_actions()
         return {'actions': self.actions[t, :self.adim]}
 

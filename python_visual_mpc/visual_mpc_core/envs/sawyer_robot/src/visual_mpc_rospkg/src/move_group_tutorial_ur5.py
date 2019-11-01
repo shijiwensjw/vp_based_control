@@ -11,6 +11,7 @@ import rospy
 import moveit_commander
 import moveit_msgs.msg
 import geometry_msgs.msg
+import std_msgs.msg
 from math import pi
 from std_msgs.msg import String
 from moveit_commander.conversions import pose_to_list
@@ -70,6 +71,7 @@ class MoveGroupTutorial(object):
     #postion_publish = rospy.Publisher('/move_group/pose',
                                           # geometry_msgs.msg.Pose,
                                           # queue_size=20)
+    # self.is_running_pub = rospy.Publisher('/is_running', std_msgs.msg.Bool, queue_size=10)
 
     planning_frame = group.get_planning_frame()
     print "============ Reference frame: %s" % planning_frame
@@ -94,25 +96,19 @@ class MoveGroupTutorial(object):
     self.eef_link = eef_link
     self.group_names = group_names
 
-    self._low_bound = np.array([-0.416, 0.352, 0.167, -1])
-    self._high_bound = np.array([0.556, 0.926, 0.170, 1])
+    # self._low_bound = np.array([-0.416, 0.352, 0.167, -1])
+    # self._high_bound = np.array([0.556, 0.926, 0.170, 1])
+    self._low_bound = np.array([-0.35, 0.420, 0.118, -1])
+    self._high_bound = np.array([0.23, 0.920, 0.125, 1])
 
     group.set_max_velocity_scaling_factor(0.2)
     group.set_max_acceleration_scaling_factor(0.04)
 
-
-  # def pose_publish(self):
-  #
-  #   group = self.group
-  #   postion_publish = self.postion_publish
-  #   rate = rospy.Rate(10) # 10hz
-  #
+  # def is_running_publish(self, run_flag=False):
+  #   rate = rospy.Rate(100)
   #   while not rospy.is_shutdown():
-  #       pose_pub = geometry_msgs.msg.Pose()
-	# pose_pub = group.get_current_pose().pose
-  #       rospy.loginfo(pose_pub)
-  #       postion_publish.publish(pose_pub)
-  #       rate.sleep()
+  #     self.is_running_pub.publish(run_flag)
+  #     rate.sleep()
 
   def go_to_up_state(self):
 
@@ -154,14 +150,18 @@ class MoveGroupTutorial(object):
     pose_goal.orientation.y = 0.352373748554
     pose_goal.orientation.z = 0.644633721705
 
+
+    # self.is_running_publish(run_flag=True)
     group.set_pose_target(pose_goal)
     #group.set_random_target()
+    # self.is_running_pub.publish(True)
 
     plan = group.go(wait=True)
 
     group.stop()
-
+    # self.is_running_publish(run_flag=False)
     group.clear_pose_targets()
+    # self.is_running_pub.publish(False)
 
     current_pose = group.get_current_pose().pose
     print("New current pose: ", current_pose)
@@ -176,48 +176,6 @@ class MoveGroupTutorial(object):
     print("Current pose: ", current_pose)
     return 0
 
-
-  # def plan_cartesian_path(self, scale=1):
-  #   group = self.group
-  #
-  #   current_pose = group.get_current_pose().pose
-  #   print("Current pose: ", current_pose)
-  #
-  #   waypoints = []
-  #
-  #   wpose = group.get_current_pose().pose
-  #   wpose.position.x = 0.2
-  #   wpose.position.y = 0.01
-  #   wpose.position.z = 0.2
-  #   waypoints.append(copy.deepcopy(wpose))
-  #
-  #   wpose.position.y += 0.1
-  #   waypoints.append(copy.deepcopy(wpose))
-  #
-  #   wpose.position.y -= 0.2
-  #   waypoints.append(copy.deepcopy(wpose))
-  #
-  #   (plan, fraction) = group.compute_cartesian_path(
-  #                                      waypoints,   # waypoints to follow
-  #                                      0.01,        # eef_step
-  #                                      0.0)         # jump_threshold
-  #
-  #   return plan, fraction
-
-
-
-  # def display_trajectory(self, plan):
-  #
-  #   robot = self.robot
-  #   # display_trajectory_publisher = self.display_trajectory_publisher
-  #
-  #   display_trajectory = moveit_msgs.msg.DisplayTrajectory()
-  #   display_trajectory.trajectory_start = robot.get_current_state()
-  #   display_trajectory.trajectory.append(plan)
-  #   # Publish
-  #   # display_trajectory_publisher.publish(display_trajectory);
-
-
   def execute_plan(self, plan):
 
     group = self.group
@@ -230,7 +188,6 @@ def main():
     print "============ Press `Enter` to begin the tutorial by setting up the moveit_commander (press ctrl-d to exit) ..."
     raw_input()
     tutorial = MoveGroupTutorial()
-
 
     #tutorial.get_pose()
     #tutorial.pose_publish()
@@ -245,22 +202,6 @@ def main():
 	    #tutorial.pose_publish()
 
 
-
-    #print "============ Press `Enter` to execute go to up state ..."
-    #raw_input()
-    #tutorial.go_to_up_state()
-
-    #print "============ Press `Enter` to plan and display a Cartesian path ..."
-    #raw_input()
-    #cartesian_plan, fraction = tutorial.plan_cartesian_path()
-
-    #print "============ Press `Enter` to display a saved trajectory (this will replay the Cartesian path)  ..."
-    #raw_input()
-    #tutorial.display_trajectory(cartesian_plan)
-
-    #print "============ Press `Enter` to execute a saved path ..."
-    #raw_input()
-    #tutorial.execute_plan(cartesian_plan)
 
     print "============ Python tutorial demo complete!"
   except rospy.ROSInterruptException:

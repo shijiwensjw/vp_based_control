@@ -4,7 +4,7 @@ import numpy as np
 from python_visual_mpc.video_prediction.misc.makegifs2 import npy_to_gif
 import cv2
 from python_visual_mpc.visual_mpc_core.algorithm.policy import get_policy_args
-
+import rospy
 
 def file_len(fname):
     i = 0
@@ -189,7 +189,8 @@ class GeneralAgent(object):
         # Take the sample.
         t = 0
         done = self._hyperparams['T'] <= 0
-        print('first obs')
+        # print('First obs, press enter to continue')
+        # raw_input()
         initial_env_obs, _ = self.env.reset()
         obs = self._post_process_obs(initial_env_obs, agent_data, True)
         policy.reset()
@@ -212,6 +213,8 @@ class GeneralAgent(object):
             try:
                 # print('pi_t[actions]: ', pi_t['actions'])
                 obs = self._post_process_obs(self.env.step(copy.deepcopy(pi_t['actions'])), agent_data)
+                # control obs getting Rate
+                rospy.sleep(0.1)
 
             except Environment_Exception as e:
                 print(e)

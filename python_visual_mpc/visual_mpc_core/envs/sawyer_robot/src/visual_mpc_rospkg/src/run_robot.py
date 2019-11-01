@@ -57,6 +57,8 @@ class RobotEnvironment:
         print('*'*10+'init complite'+'*'*10)
 
     def run(self):
+        print('First obs, press enter to continue')
+        raw_input()
         if not self._is_bench:
             print('begin sampling')
             for i in xrange(self._hyperparams['start_index'], self._hyperparams['end_index']):

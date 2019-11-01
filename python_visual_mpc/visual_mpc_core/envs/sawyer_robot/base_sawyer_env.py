@@ -158,7 +158,7 @@ class BaseSawyerEnv(BaseEnv):
         self._start_pix, self._desig_pix, self._goal_pix = None, None, None
         # self._goto_closest_neutral()
         # Implement a object to excute the action
-        self.ur_robot = MoveGroupUR()\
+        self.ur_robot = MoveGroupUR()
 
         self.group = moveit_commander.MoveGroupCommander("manipulator")
 
@@ -189,8 +189,10 @@ class BaseSawyerEnv(BaseEnv):
         high_angle = 265 * np.pi / 180
 
         if self._robot_name == 'sudri':
-            self._low_bound = np.array([-0.416, 0.352, 0.166, low_angle, -1])
-            self._high_bound = np.array([0.556, 0.926, 0.232, high_angle, 1])
+            # self._low_bound = np.array([-0.416, 0.352, 0.166, low_angle, -1])
+            # self._high_bound = np.array([0.556, 0.926, 0.232, high_angle, 1])\
+            self._low_bound = np.array([-0.416, 0.392, 0.125, low_angle, -1])
+            self._high_bound = np.array([0.556, 0.946, 0.126, high_angle, 1])
             self._middle = (self._low_bound[:3] + self._high_bound[:3]) / 2
         else:
             raise ValueError("Supported robots are vestri/sudri")
