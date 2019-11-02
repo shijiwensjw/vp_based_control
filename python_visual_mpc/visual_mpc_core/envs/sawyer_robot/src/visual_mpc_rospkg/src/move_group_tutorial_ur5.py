@@ -101,8 +101,8 @@ class MoveGroupTutorial(object):
     self._low_bound = np.array([-0.35, 0.420, 0.118, -1])
     self._high_bound = np.array([0.23, 0.920, 0.125, 1])
 
-    group.set_max_velocity_scaling_factor(0.2)
-    group.set_max_acceleration_scaling_factor(0.04)
+    group.set_max_velocity_scaling_factor(0.1)
+    # group.set_max_acceleration_scaling_factor(0.04)
 
   # def is_running_publish(self, run_flag=False):
   #   rate = rospy.Rate(100)
@@ -158,7 +158,7 @@ class MoveGroupTutorial(object):
 
     plan = group.go(wait=True)
 
-    group.stop()
+    # group.stop()
     # self.is_running_publish(run_flag=False)
     group.clear_pose_targets()
     # self.is_running_pub.publish(False)

@@ -1,8 +1,8 @@
-(dp0
+(dp1
 S'ntraj'
-p1
-I210
-sS'broken_traj'
 p2
-(lp3
+I233
+sS'broken_traj'
+p3
+(lp4
 s.
