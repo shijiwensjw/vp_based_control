@@ -216,7 +216,7 @@ class BaseSawyerEnv(BaseEnv):
         # target_qpos = np.clip(self._next_qpos(action), self._low_bound, self._high_bound)
         # wait_change = (target_qpos[-1] > 0) != (self._previous_target_qpos[-1] > 0)
         target_qpos = np.clip(action_quat[:3] + self._middle, self._low_bound[:3], self._high_bound[:3])
-        print('target_qpos: ', target_qpos)
+        # print('target_qpos: ', target_qpos)
 
         if self._save_video:
             self._main_cam.start_recording() #, self._left_cam.start_recording()

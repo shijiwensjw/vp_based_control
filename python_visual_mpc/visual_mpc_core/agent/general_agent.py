@@ -213,8 +213,9 @@ class GeneralAgent(object):
             try:
                 # print('pi_t[actions]: ', pi_t['actions'])
                 obs = self._post_process_obs(self.env.step(copy.deepcopy(pi_t['actions'])), agent_data)
+                print("obs_state: ",obs['state'][t])
                 # control obs getting Rate
-                rospy.sleep(0.1)
+                rospy.sleep(0.06)
 
             except Environment_Exception as e:
                 print(e)

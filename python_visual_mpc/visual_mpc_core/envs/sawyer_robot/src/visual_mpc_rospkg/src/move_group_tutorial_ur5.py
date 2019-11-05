@@ -98,11 +98,11 @@ class MoveGroupTutorial(object):
 
     # self._low_bound = np.array([-0.416, 0.352, 0.167, -1])
     # self._high_bound = np.array([0.556, 0.926, 0.170, 1])
-    self._low_bound = np.array([-0.35, 0.420, 0.118, -1])
+    self._low_bound = np.array([-0.35, 0.360, 0.118, -1])
     self._high_bound = np.array([0.23, 0.920, 0.125, 1])
 
-    group.set_max_velocity_scaling_factor(0.1)
-    # group.set_max_acceleration_scaling_factor(0.04)
+    group.set_max_velocity_scaling_factor(0.18)
+    group.set_max_acceleration_scaling_factor(0.08)
 
   # def is_running_publish(self, run_flag=False):
   #   rate = rospy.Rate(100)
@@ -136,7 +136,7 @@ class MoveGroupTutorial(object):
     group = self.group
 
     current_pose = group.get_current_pose().pose
-    print("Current pose: ", current_pose)
+    # print("Current pose: ", current_pose)
 
     pose_goal = geometry_msgs.msg.Pose()
 
@@ -158,7 +158,7 @@ class MoveGroupTutorial(object):
 
     plan = group.go(wait=True)
 
-    # group.stop()
+    group.stop()
     # self.is_running_publish(run_flag=False)
     group.clear_pose_targets()
     # self.is_running_pub.publish(False)
@@ -168,6 +168,32 @@ class MoveGroupTutorial(object):
 
     current_pose = self.group.get_current_pose().pose
     return all_close(pose_goal, current_pose, 0.01)
+
+  def reset(self, flag):
+    pose_goal = geometry_msgs.msg.Pose()
+
+    if flag == 0:
+
+      pose_goal.position.x = self._low_bound[0] - 0.05
+      pose_goal.position.y = random.uniform(self._low_bound[1], self._high_bound[1])
+      pose_goal.position.z = random.uniform(self._low_bound[2], self._high_bound[2])
+
+    elif flag == 1:
+
+      pose_goal.position.x = self._high_bound[0] + 0.05
+      pose_goal.position.y = random.uniform(self._low_bound[1], self._high_bound[1])
+      pose_goal.position.z = random.uniform(self._low_bound[2], self._high_bound[2])
+
+    pose_goal.orientation.w = 0.535960768954  #1.0
+    pose_goal.orientation.x = -0.415964133446
+    pose_goal.orientation.y = 0.352373748554
+    pose_goal.orientation.z = 0.644633721705
+
+    self.group.set_pose_target(pose_goal)
+    plan = self.group.go(wait=True)
+    self.group.stop()
+    self.group.clear_pose_targets()
+    print("Set at bound point")
 
 
   def get_pose(self):
@@ -196,9 +222,16 @@ def main():
     #raw_input()
     #tutorial.go_to_up_state()
 
-    for i in range(1,1000):
+    for i in range(0,200):
         print "Begin {}th trial".format(i)
-        tutorial.go_to_pose_goal()
+        if i%10 == 0:
+            tutorial.reset(0)
+            tutorial.reset(1)
+        # try:
+        run_correct = tutorial.go_to_pose_goal()
+        if not run_correct:
+            print("Wrong......")
+            sys.exit()
 	    #tutorial.pose_publish()
 
 
