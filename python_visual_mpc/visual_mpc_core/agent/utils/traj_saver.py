@@ -80,13 +80,16 @@ class GeneralAgentSaver:
                         for c in range(ncam):
                             s.add_sequence_entry('env/image_view{}/encoded'.format(c),
                                                  get_shape(obs[k][0, 0]), get_dtype(obs[k][0, 0]))
-                    else:
+                    elif k == 'state':
                         key_name = 'env/{}'.format(k)
                         s.add_sequence_entry(key_name, get_shape(obs[k][0]), get_dtype(obs[k][0]))
-            if policy_out is not None and len(policy_out) > 0:
-                for k in policy_out[0]:
-                    key_name = 'policy/{}'.format(k)
-                    s.add_sequence_entry(key_name, get_shape(policy_out[0][k]), get_dtype(policy_out[0][k]))
+                    elif k == 'state_norm':
+                        key_name = 'env/{}'.format(k)
+                        s.add_sequence_entry(key_name, get_shape(obs[k][0][:4]), get_dtype(obs[k][0][:4]))
+            # if policy_out is not None and len(policy_out) > 0:
+            #     for k in policy_out[0]:
+            #         key_name = 'policy/{}'.format(k)
+            #         s.add_sequence_entry(key_name, get_shape(policy_out[0][k]), get_dtype(policy_out[0][k]))
             s.save_manifest()
 
     def save_traj(self, agent_data, obs, policy_out):
@@ -115,11 +118,14 @@ class GeneralAgentSaver:
                     ncam = obs[k].shape[1]
                     for c in range(ncam):
                         step_dict['env/image_view{}/encoded'.format(c)] = convert_datum(obs[k][t, c])
-                else:
+                elif k == 'state':
                     step_dict['env/{}'.format(k)] = convert_datum(obs[k][t])
-            if len(policy_out) > t:
-                for k in policy_out[t]:
-                    step_dict['policy/{}'.format(k)] = convert_datum(policy_out[t][k])
+                elif k == 'state_norm':
+                    step_dict['env/{}'.format(k)] = convert_datum(obs[k][t][:4])
+            # Without policy_out
+            # if len(policy_out) > t:
+            #     for k in policy_out[t]:
+            #         step_dict['policy/{}'.format(k)] = convert_datum(policy_out[t][k])
 
             sequence_data.append(step_dict)
 

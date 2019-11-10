@@ -10,6 +10,7 @@ import random
 
 def save_worker(save_conf):
     assigned_files, record_queue, T, target_width, seperate, infer_gripper = save_conf
+    # print('save_conf: ',save_conf)
     target_dim = None
     ncam = None
     for traj in assigned_files:
@@ -18,12 +19,18 @@ def save_worker(save_conf):
             img = cv2.imread('{}/images0/im_0.jpg'.format(traj))
             old_dim = img.shape[:2]
             resize_ratio = target_width / float(old_dim[1])
-            target_dim = (target_width, int(old_dim[0] * resize_ratio))
+
+            # resize as original ration
+            # target_dim = (target_width, int(old_dim[0] * resize_ratio))
+
+            # resize as 1:1
+            target_dim = (target_width, target_width)
             print('resizing to {}'.format(target_dim[::-1]))
 
         agent_data = pkl.load(open('{}/agent_data.pkl'.format(traj), 'rb'))
         obs_dict = pkl.load(open('{}/obs_dict.pkl'.format(traj), 'rb'))
         policy_out = pkl.load(open('{}/policy_out.pkl'.format(traj), 'rb'))
+        # print('data loaded')
 
         imgs = np.zeros((T, ncam, target_dim[1], target_dim[0], 3), dtype = np.uint8)
 
@@ -35,6 +42,7 @@ def save_worker(save_conf):
                     img = img[:, ::-1]
                 imgs[t, n] = cv2.resize(img, target_dim, interpolation=cv2.INTER_AREA)
         obs_dict['images'] = imgs
+        # not used
         if infer_gripper:
             policy_shape = policy_out[0]['actions'].shape[0]
             assert policy_shape == 4 or policy_shape == 5, "Invalid dims to infer gripper"
@@ -48,7 +56,7 @@ def save_worker(save_conf):
             elif policy_shape == 5 and seperate and 'goal_reached' not in agent_data:
                 good_states = np.logical_and(obs_dict['state'][:-1, 2] >= 0.9, obs_dict['state'][:-1, -1] > -0.5)
                 agent_data['goal_reached'] = np.sum(np.logical_and(np.abs(obs_dict['state'][:-1, -1]) < 0.97, good_states)) >= 2
-
+        # not used
         if seperate and not 'goal_reached' in agent_data:
             state = obs_dict['state']
             finger_sensor = obs_dict['finger_sensors']
