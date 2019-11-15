@@ -35,8 +35,9 @@ def save_tf_record(filename, trajectory_list, sequence_manifest, metadata_manife
 
     filename = filename + '.tfrecords'
     print(filename)
-    options = tf.python_io.TFRecordOptions(tf.python_io.TFRecordCompressionType.GZIP)
-    writer = tf.python_io.TFRecordWriter(filename, options=options)
+    # options = tf.python_io.TFRecordOptions(tf.python_io.TFRecordCompressionType.GZIP)
+    # writer = tf.python_io.TFRecordWriter(filename, options=options)
+    writer = tf.python_io.TFRecordWriter(filename)
 
     for meta_data, sequence_data in trajectory_list:
         check_against_manifest(meta_data, metadata_manifest)
@@ -168,7 +169,7 @@ class RecordSaver:
                 continue
             elif flush or len(buffer) % self._traj_per_file == 0:
                 next_counter = self._save_counters[i] + len(buffer)
-                
+
                 num_saved = sum(self._save_counters) + self._offset
                 next_total = num_saved + len(buffer)
 
